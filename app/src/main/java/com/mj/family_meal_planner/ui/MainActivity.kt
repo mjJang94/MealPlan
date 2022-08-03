@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
+class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
     override val layoutResourceId: Int
         get() = R.layout.activity_main
@@ -23,7 +23,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
         lifecycleScope.launchWhenCreated {
             viewModel.eventFlow.collectLatest {
-                when(it){
+                when (it) {
                     is Event.DataChanged -> {
                         Timber.d("data changed : $it")
                     }
@@ -31,16 +31,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
                     is Event.Error -> {
                         Timber.d("error with ${it.error}")
                     }
-
-                    else -> {
-                        Timber.e("not expected error $it")
-                    }
                 }
             }
         }
 
-        binding.txtTest.setOnClickListener {
-            viewModel.upload()
-        }
     }
 }

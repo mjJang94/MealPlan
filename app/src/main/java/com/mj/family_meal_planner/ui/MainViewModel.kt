@@ -1,5 +1,6 @@
 package com.mj.family_meal_planner.ui
 
+import android.widget.CalendarView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mj.domain.usecase.CollectMealPlanChangeEventUseCase
@@ -34,5 +35,9 @@ class MainViewModel @Inject constructor(
                     Timber.e("upload fail by $it")
                 }
         }
+    }
+
+    val dateChangeEvent = CalendarView.OnDateChangeListener { view, year, month, dayOfMonth ->
+        Timber.d("$year, $month, $dayOfMonth")
     }
 }
