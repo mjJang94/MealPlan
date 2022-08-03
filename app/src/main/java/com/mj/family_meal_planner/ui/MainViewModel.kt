@@ -16,13 +16,13 @@ import kotlin.coroutines.CoroutineContext
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val writeMealPlanUseCase: WriteMealPlanUseCase,
-    private val mealPlanChangedEventUseCase: CollectMealPlanChangeEventUseCase
+    mealPlanChangedEventUseCase: CollectMealPlanChangeEventUseCase
 ) : ViewModel(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
 
-    val eventFlow = mealPlanChangedEventUseCase.getMealPlanChangeEventFlow
+    val eventFlow = mealPlanChangedEventUseCase.mealPlanChangeEventStream
 
     fun upload() {
         launch(Dispatchers.IO) {

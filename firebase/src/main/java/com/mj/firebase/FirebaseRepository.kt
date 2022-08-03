@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.getValue
 import com.mj.firebase.model.MealPlan
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -17,14 +18,14 @@ class FirebaseRepository @Inject constructor(
 ) {
     sealed interface Event {
         data class Error(val error: DatabaseError) : Event
-        data class DataChanged(val snapshot: DataSnapshot) : Event
+        data class DataChanged(val snapshot: MealPlan?) : Event
     }
 
-    fun getMealPlanEventFlow() = callbackFlow {
+    val mealPlanEventStream = callbackFlow {
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 Timber.d("onDataChange()")
-                trySend(Event.DataChanged(snapshot))
+                trySend(Event.DataChanged(snapshot.getValue<MealPlan>()))
             }
 
             override fun onCancelled(error: DatabaseError) {

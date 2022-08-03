@@ -9,4 +9,5 @@ class WriteMealPlanUseCase @Inject constructor(
     private val firebase: FirebaseRepository
 ) {
     suspend fun sendMealPlan(mealPlan: MealPlan) = firebase.sendMealPlan(mealPlan)
+
 }

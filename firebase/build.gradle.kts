@@ -1,6 +1,6 @@
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    kotlin("android")
     kotlin("kapt")
 }
 
@@ -26,15 +26,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
 dependencies {
 
-    implementation ("androidx.core:core-ktx:${VERSION.CORE}")
-    implementation ("androidx.appcompat:appcompat:${VERSION.APP_COMPAT}")
-    implementation ("com.google.android.material:material:${VERSION.MATERIAL}")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
@@ -54,4 +51,5 @@ dependencies {
     //firebase
     implementation (platform("com.google.firebase:firebase-bom:${VERSION.FIREBASE_REAL_TIME_DATABASE}"))
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation ("com.google.firebase:firebase-auth-ktx")
 }

@@ -6,5 +6,5 @@ import javax.inject.Inject
 class CollectMealPlanChangeEventUseCase @Inject constructor(
     firebase: FirebaseRepository
 ){
-    val getMealPlanChangeEventFlow = firebase.getMealPlanEventFlow()
+    val mealPlanChangeEventStream = firebase.mealPlanEventStream
 }
