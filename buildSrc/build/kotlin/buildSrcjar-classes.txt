@@ -1,0 +1,1 @@
+/Users/mj/Desktop/dev/aos/side/MealPlan/buildSrc/build/classes/kotlin/main/VERSION.class
