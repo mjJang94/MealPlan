@@ -5,13 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.mj.domain.usecase.CollectMealPlanChangeEventUseCase
 import com.mj.domain.usecase.WriteMealPlanUseCase
 import com.mj.firebase.model.MealPlan
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import timber.log.Timber
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -22,7 +24,12 @@ class MainViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
 
-    val eventFlow = mealPlanChangedEventUseCase.mealPlanChangeEventStream
+    //ui event
+    private val _eventFlow = MutableSharedFlow<UIEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    //Firebase RealtimeDatabase callback flow
+    val firebaseEventFlow = mealPlanChangedEventUseCase.mealPlanChangeEventStream
 
     fun upload() {
         launch(Dispatchers.IO) {
@@ -34,5 +41,23 @@ class MainViewModel @Inject constructor(
                     Timber.e("upload fail by $it")
                 }
         }
+    }
+
+    fun clickUploadPlan() {
+        triggerEvent(UIEvent.UploadClick)
+    }
+
+
+    //ui event emitter
+    private fun triggerEvent(event: UIEvent) {
+        viewModelScope.launch {
+            Timber.d("emit event : $event")
+            _eventFlow.emit(event)
+        }
+    }
+
+    sealed class UIEvent {
+        data class ShowToast(val text: String) : UIEvent()
+        object UploadClick : UIEvent()
     }
 }
