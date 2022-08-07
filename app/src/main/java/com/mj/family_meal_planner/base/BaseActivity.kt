@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 abstract class BaseActivity<T : ViewDataBinding, V : ViewModel> : AppCompatActivity() {
 
@@ -36,4 +38,16 @@ abstract class BaseActivity<T : ViewDataBinding, V : ViewModel> : AppCompatActiv
 
     protected fun shortShowToast(msg: String) =
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
+    fun LifecycleOwner.repeatOnCreated(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED, block)
+        }
+    }
+
+    fun LifecycleOwner.repeatOnStarted(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED, block)
+        }
+    }
 }

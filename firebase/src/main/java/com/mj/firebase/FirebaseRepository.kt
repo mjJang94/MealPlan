@@ -16,21 +16,21 @@ import javax.inject.Inject
 class FirebaseRepository @Inject constructor(
     private val databaseReference: DatabaseReference
 ) {
-    sealed interface Event {
-        data class Error(val error: DatabaseError) : Event
-        data class DataChanged(val snapshot: MealPlan?) : Event
+    sealed class FirebaseEvent {
+        data class Error(val error: DatabaseError) : FirebaseEvent()
+        data class DataChanged(val snapshot: MealPlan?) : FirebaseEvent()
     }
 
     val mealPlanEventStream = callbackFlow {
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 Timber.d("onDataChange()")
-                trySend(Event.DataChanged(snapshot.getValue<MealPlan>()))
+                trySend(FirebaseEvent.DataChanged(snapshot.getValue<MealPlan>()))
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Timber.d("onCancelled()")
-                trySend(Event.Error(error))
+                trySend(FirebaseEvent.Error(error))
             }
         }
         databaseReference.addValueEventListener(valueEventListener)

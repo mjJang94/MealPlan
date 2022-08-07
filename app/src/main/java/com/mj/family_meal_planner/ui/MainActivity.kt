@@ -1,13 +1,18 @@
 package com.mj.family_meal_planner.ui
 
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mj.family_meal_planner.R
 import com.mj.family_meal_planner.base.BaseActivity
 import com.mj.family_meal_planner.databinding.ActivityMainBinding
-import com.mj.firebase.FirebaseRepository.Event
+import com.mj.family_meal_planner.ui.MainViewModel.UIEvent
+import com.mj.firebase.FirebaseRepository.FirebaseEvent
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -21,19 +26,35 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
         binding.vm = viewModel
 
-        lifecycleScope.launchWhenCreated {
-            viewModel.eventFlow.collectLatest {
-                when (it) {
-                    is Event.DataChanged -> {
-                        Timber.d("data changed : $it")
-                    }
-
-                    is Event.Error -> {
-                        Timber.d("error with ${it.error}")
-                    }
-                }
+        repeatOnCreated {
+            viewModel.firebaseEventFlow.collect { event ->
+                handleFirebaseEvent(event)
             }
         }
 
+        repeatOnStarted {
+            viewModel.eventFlow.collect { event ->
+                handleUIEvent(event)
+            }
+        }
+    }
+
+    private fun handleFirebaseEvent(event: FirebaseEvent) = when (event) {
+        is FirebaseEvent.DataChanged -> {
+            Timber.d("data changed : ${event.snapshot}")
+        }
+
+        is FirebaseEvent.Error -> {
+            Timber.d("error with ${event.error}")
+        }
+    }
+
+    private fun handleUIEvent(event: UIEvent) = when (event) {
+        is UIEvent.ShowToast -> {
+            Timber.d("Show Toast : ${event.text}")
+        }
+        is UIEvent.UploadClick -> {
+            viewModel.upload()
+        }
     }
 }

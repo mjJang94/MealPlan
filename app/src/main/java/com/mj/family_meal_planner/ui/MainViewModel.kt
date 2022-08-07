@@ -1,6 +1,5 @@
 package com.mj.family_meal_planner.ui
 
-import android.widget.CalendarView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mj.domain.usecase.CollectMealPlanChangeEventUseCase
@@ -9,6 +8,8 @@ import com.mj.firebase.model.MealPlan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -23,7 +24,12 @@ class MainViewModel @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
 
-    val eventFlow = mealPlanChangedEventUseCase.mealPlanChangeEventStream
+    //ui event
+    private val _eventFlow = MutableSharedFlow<UIEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    //Firebase RealtimeDatabase callback flow
+    val firebaseEventFlow = mealPlanChangedEventUseCase.mealPlanChangeEventStream
 
     fun upload() {
         launch(Dispatchers.IO) {
@@ -37,7 +43,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val dateChangeEvent = CalendarView.OnDateChangeListener { view, year, month, dayOfMonth ->
-        Timber.d("$year, $month, $dayOfMonth")
+    fun clickUploadPlan() {
+        triggerEvent(UIEvent.UploadClick)
+    }
+
+    //ui event emitter
+    private fun triggerEvent(event: UIEvent) {
+        viewModelScope.launch {
+            Timber.d("emit event : $event")
+            _eventFlow.emit(event)
+        }
+    }
+
+    sealed class UIEvent {
+        data class ShowToast(val text: String) : UIEvent()
+        object UploadClick : UIEvent()
     }
 }
